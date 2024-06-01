@@ -1,6 +1,7 @@
 package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.amazonaws.services.sqs.model.CreateQueueRequest
 import com.amazonaws.services.sqs.model.Message
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +37,16 @@ class TestSQS {
     fun testCreateQueue() {
         val result = amazonSQS.createQueue(queue)
         queueUrl = result.queueUrl
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
+
+    @Test
+    @Order(1)
+    fun testCreateFifoQueue() {
+        val request = CreateQueueRequest()
+        request.queueName = "$queue.fifo"
+        request.addAttributesEntry("FifoQueue", "true")
+        val result = amazonSQS.createQueue(request)
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
     }
 }
