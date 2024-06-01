@@ -2,9 +2,7 @@ package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.Message
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.*
@@ -32,4 +30,12 @@ class TestSQS {
     private lateinit var queueUrl: String
 
     private lateinit var message: Message
+
+    @Test
+    @Order(1)
+    fun testCreateQueue() {
+        val result = amazonSQS.createQueue(queue)
+        queueUrl = result.queueUrl
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
 }
