@@ -3,6 +3,7 @@ package id.my.hendisantika.springbootsnssqslocalstack
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.CreateQueueRequest
 import com.amazonaws.services.sqs.model.Message
+import com.amazonaws.services.sqs.model.SendMessageRequest
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -57,5 +58,21 @@ class TestSQS {
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
         Assertions.assertTrue(result.queueUrls.isNotEmpty())
         Assertions.assertTrue(result.queueUrls.contains(queueUrl))
+    }
+
+    @Test
+    @Order(3)
+    fun testSendMessage() {
+        val request = SendMessageRequest()
+        request.messageBody = "This is SQS message"
+        request.queueUrl = queueUrl
+        val result = amazonSQS.sendMessage(request)
+        val messageId = result.messageId
+        Assertions.assertNotNull(messageId)
+        val receiveMessageResult = amazonSQS.receiveMessage(queueUrl)
+        message = receiveMessageResult.messages.first()
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertEquals(request.messageBody, message.body)
+        Assertions.assertEquals(messageId, message.messageId)
     }
 }
