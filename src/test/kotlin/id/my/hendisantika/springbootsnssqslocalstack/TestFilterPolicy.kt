@@ -1,6 +1,8 @@
 package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sns.AmazonSNS
+import com.amazonaws.services.sns.model.SetSubscriptionAttributesRequest
+import com.amazonaws.services.sns.util.Topics
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -62,5 +64,25 @@ class TestFilterPolicy {
         result = amazonSQS.createQueue(queue2)
         queueUrl2 = result.queueUrl
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
+
+    @Test
+    @Order(3)
+    fun testSubscriptions() {
+        // first queue
+        var subscriptionArn = Topics.subscribeQueue(amazonSNS, amazonSQS, topicArn, queueUrl1)
+        Assertions.assertTrue(subscriptionArn.contains(topic))
+
+        var filterPolicyString = "{\"event\":[\"${filterPolicy1}\"]}"
+        var request = SetSubscriptionAttributesRequest(subscriptionArn, "FilterPolicy", filterPolicyString)
+        amazonSNS.setSubscriptionAttributes(request)
+
+        // second queue
+        subscriptionArn = Topics.subscribeQueue(amazonSNS, amazonSQS, topicArn, queueUrl2)
+        Assertions.assertTrue(subscriptionArn.contains(topic))
+
+        filterPolicyString = "{\"another_event\":[\"${filterPolicy2}\"]}"
+        request = SetSubscriptionAttributesRequest(subscriptionArn, "FilterPolicy", filterPolicyString)
+        amazonSNS.setSubscriptionAttributes(request)
     }
 }
