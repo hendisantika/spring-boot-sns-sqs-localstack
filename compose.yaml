@@ -1,1 +1,13 @@
 services:
+  localstack:
+    image: localstack/localstack:3.4.0
+    container_name: localstack_sns_sqs
+    ports:
+      - '4566:4566'
+    environment:
+      - DEFAULT_REGION=ap-southeast-1
+      - SERVICES=sns,sqs
+      - DEBUG=1
+      - DATA_DIR=/tmp/localstack/data
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock'

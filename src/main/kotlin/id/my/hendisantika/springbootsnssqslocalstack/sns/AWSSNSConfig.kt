@@ -26,7 +26,7 @@ class AWSSNSConfig {
         return AmazonSNSClient.builder()
             .withEndpointConfiguration(
                 AwsClientBuilder.EndpointConfiguration(
-                    "http://localhost:4566", "us-east-1"
+                    "http://localhost:4566", "ap-southeast-1"
                 )
             )
             .withCredentials(
