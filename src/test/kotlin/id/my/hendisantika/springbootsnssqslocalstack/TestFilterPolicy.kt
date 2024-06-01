@@ -2,9 +2,7 @@ package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sns.AmazonSNS
 import com.amazonaws.services.sqs.AmazonSQSAsync
-import org.junit.jupiter.api.MethodOrderer
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestMethodOrder
+import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.util.*
@@ -45,4 +43,12 @@ class TestFilterPolicy {
 
     @Autowired
     private lateinit var amazonSQS: AmazonSQSAsync
+
+    @Test
+    @Order(1)
+    fun testCreateTopic() {
+        val createTopic = amazonSNS.createTopic(topic)
+        topicArn = createTopic.topicArn
+        Assertions.assertEquals(200, createTopic.sdkHttpMetadata.httpStatusCode)
+    }
 }
