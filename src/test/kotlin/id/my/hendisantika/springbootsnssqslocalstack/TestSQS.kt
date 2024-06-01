@@ -88,4 +88,11 @@ class TestSQS {
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
         Assertions.assertTrue(receiveMessageResult.messages.isNullOrEmpty())
     }
+
+    @Test
+    @Order(5)
+    fun testDeleteQueue() {
+        val result = amazonSQS.deleteQueue(queueUrl)
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
 }
