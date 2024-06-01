@@ -48,3 +48,8 @@ tasks.withType<KotlinCompile> {
 tasks.withType<Test> {
     useJUnitPlatform()
 }
+
+sourceSets {
+    val main by getting
+    main.java.srcDirs("src/main/java", "src/main/kotlin")
+}
