@@ -26,6 +26,10 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-json")
+
+    implementation("com.amazonaws:aws-java-sdk-sqs:1.12.732")
+    implementation("com.amazonaws:aws-java-sdk-sns:1.12.732")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
