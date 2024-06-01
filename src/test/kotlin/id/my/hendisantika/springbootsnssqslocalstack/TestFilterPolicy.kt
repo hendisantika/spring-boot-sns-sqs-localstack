@@ -1,9 +1,13 @@
 package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sns.AmazonSNS
+import com.amazonaws.services.sns.model.MessageAttributeValue
+import com.amazonaws.services.sns.model.PublishRequest
 import com.amazonaws.services.sns.model.SetSubscriptionAttributesRequest
 import com.amazonaws.services.sns.util.Topics
 import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -85,4 +89,48 @@ class TestFilterPolicy {
         request = SetSubscriptionAttributesRequest(subscriptionArn, "FilterPolicy", filterPolicyString)
         amazonSNS.setSubscriptionAttributes(request)
     }
+
+    @Test
+    @Order(4)
+    fun testRedirectToFirstQueueOnly() {
+        val request = PublishRequest()
+        request.topicArn = topicArn
+        request.subject = "This is a sample subject"
+        request.message = "This foo is a sample message"
+        request.messageGroupId = "ExampleGroupId"
+
+        val messageAttributeValue = MessageAttributeValue().withDataType("String.Array")
+            .withStringValue("[\"$filterPolicy1\"]")
+        request.addMessageAttributesEntry("event", messageAttributeValue)
+
+        val result = amazonSNS.publish(request)
+
+        val receiveMessageResult1 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl1)
+        )
+
+        val receiveMessageResult2 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl2)
+        )
+
+        val objectMapper = ObjectMapper()
+
+        val message1 = receiveMessageResult1.messages.first()
+        val bodyMap1 = objectMapper.readValue(message1.body, Map::class.java)
+
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertNotNull(result.messageId)
+
+        Assertions.assertTrue(receiveMessageResult1.messages.isNotEmpty())
+        Assertions.assertEquals(request.message, bodyMap1["Message"])
+        Assertions.assertEquals(topicArn, bodyMap1["TopicArn"])
+        Assertions.assertEquals(request.subject, bodyMap1["Subject"])
+
+        Assertions.assertTrue(receiveMessageResult2.messages.isEmpty())
+    }
+
 }
