@@ -49,4 +49,13 @@ class TestSQS {
         val result = amazonSQS.createQueue(request)
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
     }
+
+    @Test
+    @Order(2)
+    fun testListQueues() {
+        val result = amazonSQS.listQueues()
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertTrue(result.queueUrls.isNotEmpty())
+        Assertions.assertTrue(result.queueUrls.contains(queueUrl))
+    }
 }
