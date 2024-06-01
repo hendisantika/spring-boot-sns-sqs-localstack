@@ -51,4 +51,16 @@ class TestFilterPolicy {
         topicArn = createTopic.topicArn
         Assertions.assertEquals(200, createTopic.sdkHttpMetadata.httpStatusCode)
     }
+
+    @Test
+    @Order(2)
+    fun testCreateQueues() {
+        var result = amazonSQS.createQueue(queue1)
+        queueUrl1 = result.queueUrl
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+
+        result = amazonSQS.createQueue(queue2)
+        queueUrl2 = result.queueUrl
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
 }
