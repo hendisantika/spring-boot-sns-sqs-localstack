@@ -133,4 +133,46 @@ class TestFilterPolicy {
         Assertions.assertTrue(receiveMessageResult2.messages.isEmpty())
     }
 
+    @Test
+    @Order(5)
+    fun testRedirectToSecondQueueOnly() {
+        val request = PublishRequest()
+        request.topicArn = topicArn
+        request.subject = "This is a sample subject"
+        request.message = "This foo is a sample message"
+        request.messageGroupId = "AnotherExampleGroupId"
+
+        val messageAttributeValue = MessageAttributeValue().withDataType("String.Array")
+            .withStringValue("[\"$filterPolicy2\"]")
+        request.addMessageAttributesEntry("another_event", messageAttributeValue)
+
+        val result = amazonSNS.publish(request)
+
+        val receiveMessageResult2 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl2)
+        )
+
+        val receiveMessageResult1 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl1)
+        )
+
+        val objectMapper = ObjectMapper()
+
+        val message1 = receiveMessageResult2.messages.first()
+        val bodyMap1 = objectMapper.readValue(message1.body, Map::class.java)
+
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertNotNull(result.messageId)
+
+        Assertions.assertTrue(receiveMessageResult2.messages.isNotEmpty())
+        Assertions.assertEquals(request.message, bodyMap1["Message"])
+        Assertions.assertEquals(topicArn, bodyMap1["TopicArn"])
+        Assertions.assertEquals(request.subject, bodyMap1["Subject"])
+
+        Assertions.assertTrue(receiveMessageResult1.messages.isEmpty())
+    }
 }
