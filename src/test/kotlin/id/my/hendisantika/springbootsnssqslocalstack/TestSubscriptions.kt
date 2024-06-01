@@ -1,6 +1,7 @@
 package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sns.AmazonSNS
+import com.amazonaws.services.sns.util.Topics
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,5 +58,17 @@ class TestSubscriptions {
         result = amazonSQS.createQueue(queue2)
         queueUrl2 = result.queueUrl
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+    }
+
+    @Test
+    @Order(3)
+    fun testSubscriptions() {
+        // first queue
+        var subscribeQueue = Topics.subscribeQueue(amazonSNS, amazonSQS, topicArn, queueUrl1)
+        Assertions.assertTrue(subscribeQueue.contains(topic))
+
+        // second queue
+        subscribeQueue = Topics.subscribeQueue(amazonSNS, amazonSQS, topicArn, queueUrl2)
+        Assertions.assertTrue(subscribeQueue.contains(topic))
     }
 }
