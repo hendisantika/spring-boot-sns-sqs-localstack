@@ -2,6 +2,7 @@ package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.CreateQueueRequest
+import com.amazonaws.services.sqs.model.DeleteMessageRequest
 import com.amazonaws.services.sqs.model.Message
 import com.amazonaws.services.sqs.model.SendMessageRequest
 import org.junit.jupiter.api.*
@@ -74,5 +75,17 @@ class TestSQS {
         Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
         Assertions.assertEquals(request.messageBody, message.body)
         Assertions.assertEquals(messageId, message.messageId)
+    }
+
+    @Test
+    @Order(4)
+    fun testDeleteMessage() {
+        val request = DeleteMessageRequest()
+        request.queueUrl = queueUrl
+        request.receiptHandle = message.receiptHandle
+        val result = amazonSQS.deleteMessage(request)
+        val receiveMessageResult = amazonSQS.receiveMessage(queueUrl)
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertTrue(receiveMessageResult.messages.isNullOrEmpty())
     }
 }
