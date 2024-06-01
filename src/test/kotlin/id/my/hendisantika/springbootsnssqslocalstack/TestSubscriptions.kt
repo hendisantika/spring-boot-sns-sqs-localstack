@@ -1,8 +1,11 @@
 package id.my.hendisantika.springbootsnssqslocalstack
 
 import com.amazonaws.services.sns.AmazonSNS
+import com.amazonaws.services.sns.model.PublishRequest
 import com.amazonaws.services.sns.util.Topics
 import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -70,5 +73,49 @@ class TestSubscriptions {
         // second queue
         subscribeQueue = Topics.subscribeQueue(amazonSNS, amazonSQS, topicArn, queueUrl2)
         Assertions.assertTrue(subscribeQueue.contains(topic))
+    }
+
+    @Test
+    @Order(4)
+    fun testPublish() {
+        val request = PublishRequest()
+        request.topicArn = topicArn
+        request.subject = "This is a sample subject"
+        request.message = "This foo is a sample message"
+        request.messageGroupId = "ExampleGroupId"
+        val result = amazonSNS.publish(request)
+
+        val receiveMessageResult1 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl1)
+        )
+
+        val receiveMessageResult2 = amazonSQS.receiveMessage(
+            ReceiveMessageRequest()
+                .withWaitTimeSeconds(5)
+                .withQueueUrl(queueUrl2)
+        )
+
+        val objectMapper = ObjectMapper()
+
+        val message1 = receiveMessageResult1.messages.first()
+        val bodyMap1 = objectMapper.readValue(message1.body, Map::class.java)
+
+        val message2 = receiveMessageResult2.messages.first()
+        val bodyMap2 = objectMapper.readValue(message2.body, Map::class.java)
+
+        Assertions.assertEquals(200, result.sdkHttpMetadata.httpStatusCode)
+        Assertions.assertNotNull(result.messageId)
+
+        Assertions.assertTrue(receiveMessageResult1.messages.isNotEmpty())
+        Assertions.assertEquals(request.message, bodyMap1["Message"])
+        Assertions.assertEquals(topicArn, bodyMap1["TopicArn"])
+        Assertions.assertEquals(request.subject, bodyMap1["Subject"])
+
+        Assertions.assertTrue(receiveMessageResult2.messages.isNotEmpty())
+        Assertions.assertEquals(request.message, bodyMap2["Message"])
+        Assertions.assertEquals(topicArn, bodyMap2["TopicArn"])
+        Assertions.assertEquals(request.subject, bodyMap2["Subject"])
     }
 }
