@@ -28,8 +28,8 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter")
     implementation("org.springframework.boot:spring-boot-starter-json")
 
-    implementation("com.amazonaws:aws-java-sdk-sqs:1.12.795")
-    implementation("com.amazonaws:aws-java-sdk-sns:1.12.795")
+    implementation("com.amazonaws:aws-java-sdk-sqs:1.12.796")
+    implementation("com.amazonaws:aws-java-sdk-sns:1.12.796")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     developmentOnly("org.springframework.boot:spring-boot-docker-compose")
