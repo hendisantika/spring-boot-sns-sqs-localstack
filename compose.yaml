@@ -1,6 +1,6 @@
 services:
   localstack:
-    image: localstack/localstack:3.4.0
+    image: localstack/localstack:4.14.0
     container_name: localstack_sns_sqs
     ports:
       - '4566:4566'
