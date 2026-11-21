@@ -82,7 +82,6 @@ class TestSubscriptions {
         request.topicArn = topicArn
         request.subject = "This is a sample subject"
         request.message = "This foo is a sample message"
-        request.messageGroupId = "ExampleGroupId"
         val result = amazonSNS.publish(request)
 
         val receiveMessageResult1 = amazonSQS.receiveMessage(

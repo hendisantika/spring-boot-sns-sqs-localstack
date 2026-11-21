@@ -97,7 +97,6 @@ class TestFilterPolicy {
         request.topicArn = topicArn
         request.subject = "This is a sample subject"
         request.message = "This foo is a sample message"
-        request.messageGroupId = "ExampleGroupId"
 
         val messageAttributeValue = MessageAttributeValue().withDataType("String.Array")
             .withStringValue("[\"$filterPolicy1\"]")
@@ -140,7 +139,6 @@ class TestFilterPolicy {
         request.topicArn = topicArn
         request.subject = "This is a sample subject"
         request.message = "This foo is a sample message"
-        request.messageGroupId = "AnotherExampleGroupId"
 
         val messageAttributeValue = MessageAttributeValue().withDataType("String.Array")
             .withStringValue("[\"$filterPolicy2\"]")

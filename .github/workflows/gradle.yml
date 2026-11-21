@@ -17,8 +17,24 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: read
+
+    # Integration tests talk to SNS & SQS on http://localhost:4566
+    services:
+      localstack:
+        image: localstack/localstack:3.4.0
+        ports:
+          - 4566:4566
+        env:
+          DEFAULT_REGION: ap-southeast-1
+          SERVICES: sns,sqs
+        options: >-
+          --health-cmd "curl -sf http://localhost:4566/_localstack/health || exit 1"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 30
 
     steps:
     - uses: actions/checkout@v7
